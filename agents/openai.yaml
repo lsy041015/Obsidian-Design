@@ -1,0 +1,7 @@
+interface:
+  display_name: "Obsidian Design"
+  short_description: "Write polished, portable Markdown notes"
+  default_prompt: "Use $obsidian-design to draft a clear, source-backed Markdown document."
+
+policy:
+  allow_implicit_invocation: true
