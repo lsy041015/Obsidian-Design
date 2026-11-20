@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/obsidian-design-banner.png" alt="Obsidian Design — a Codex skill for polished, portable Markdown documents" width="100%">
+  <img src="assets/obsidian-design-banner.png" alt="Obsidian Design — a Codex skill for polished, portable Markdown documents" width="560">
 </p>
 
 <p align="center"><a href="README.md">한국어</a> · <b>English</b></p>

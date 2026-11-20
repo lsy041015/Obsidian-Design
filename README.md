@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/obsidian-design-banner.png" alt="Obsidian Design — 다듬어지고 이식 가능한 Markdown 문서를 쓰게 하는 Codex 스킬" width="100%">
+  <img src="assets/obsidian-design-banner.png" alt="Obsidian Design — 다듬어지고 이식 가능한 Markdown 문서를 쓰게 하는 Codex 스킬" width="560">
 </p>
 
 <p align="center"><b>한국어</b> · <a href="README.en.md">English</a></p>
