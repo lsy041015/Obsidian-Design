@@ -6,39 +6,27 @@
 
 # Obsidian Design
 
-> **A Codex skill that makes the agent write or improve Obsidian and Markdown documents that help the reader understand, decide or act.**
+A Codex skill that makes the agent write or edit Obsidian and Markdown documents a reader can actually understand and act on.
 
-For project notes, guides, reports, design proposals, meeting records and technical docs. Clear structure and accurate content
-come before decoration, and existing frontmatter, links, block IDs and user-written content are preserved.
+Documents written by an agent tend to get the shape right before the content. So there were three things I wanted this skill to stop.
 
-> **Status: a document-writing rule set with no version number.** `SKILL.md` plus two reference files, documented for Codex.
-> No tests or example outputs. Claude Code can load the same format, but the author has not verified it there yet.
+- **Decoration first** — badges, empty sections, `N/A` rows, forced checklists. A short note doesn't get a report template.
+- **Notes broken by an edit** — existing frontmatter, wikilinks, block IDs, attachments and user content stay put, and the diff gets reviewed.
+- **Plausible filler** — no invented citations, measurements, owners, deadlines or test results. Unknowns are left out or marked.
 
-## Why
+The skill is one [`SKILL.md`](SKILL.md) plus two reference files. Before writing, the agent settles purpose, audience,
+destination and document type; then it orders sections by the reader's questions, tidies links and frontmatter, and rereads
+the result as the reader. If it couldn't check the rendering, it says so. A screenshot isn't proof that a test passed.
 
-`SKILL.md` opens with its goal: a finished document that helps its intended reader understand, decide or act. It guards against three things.
+It also minds the small stuff. Portable Markdown links come first, but wikilinks already in the vault are left alone; wikilinks
+inside YAML get quoted, like `project: "[[Project index]]"`; and pipes inside tables are escaped. Tables are for real comparisons
+only, callouts for decisions, warnings and exceptions. And a request to edit docs doesn't count as permission to change source
+code, clean up Git or publish anything.
 
-- **Decoration first**: no ornamental badges, empty sections, `N/A` rows or forced checklists. A short note does not need a report template.
-- **Notes broken by an edit**: frontmatter, wikilinks, block IDs, attachments and user content are preserved, and the diff is reviewed.
-- **Plausible filler**: it never invents citations, measurements, owners, deadlines, test results, personal paths, secrets or
-  sources. Unknown owners and dates in meeting notes are left out or marked.
+[`document-patterns.md`](references/document-patterns.md) has section flows per document type. They're starting points, not
+required templates, and unused sections get dropped.
 
-## What it does
-
-| Step | What the agent does |
-|---|---|
-| Document contract | Infers purpose, audience, destination and type; reads only the target note and relevant conventions or neighbors; asks only for blocking information. |
-| Compose for the reader | Descriptive title, headings ordered by reader questions, evidence for claims, facts kept apart from interpretation, tables only for real comparisons. A screenshot is not proof of a passing test. |
-| Markdown/Obsidian hygiene | Portable links, frontmatter first with quoted wikilinks, blank lines around blocks, escaped table pipes; no raw HTML, plugin-only features or badges unless required. |
-| Finish and verify | Rereads as the audience; checks claims, links and placeholders; runs an existing Markdown checker if there is one; says when rendering was not checked; reviews the diff. |
-
-## How it works
-
-The agent reads `SKILL.md` in full and opens a reference only when needed: [`document-patterns.md`](references/document-patterns.md)
-for structure and syntax, [`manual-rules.md`](references/manual-rules.md) only for CAD/STL/URDF or other project-specific
-evidence. `agents/openai.yaml` holds Codex UI metadata only.
-
-| Type | Useful progression (`document-patterns.md`) |
+| Type | Section flow |
 |---|---|
 | Project overview | Purpose → current state → scope → key decisions → resources → next steps |
 | How-to | Expected result → prerequisites → numbered steps → verification → troubleshooting |
@@ -47,56 +35,38 @@ evidence. `agents/openai.yaml` holds Codex UI metadata only.
 | Meeting record | Context/date → decisions → essential discussion → actions and unresolved questions |
 | Technical reference | Purpose → inputs/outputs → contracts and examples → edge cases → sources |
 
-**Optional CAD/STL/URDF rules** are project conventions, not Markdown defaults: binary STL size checks, `1 µm` URDF validation,
-a `16 MB` HTML artifact budget, and never silently deleting a wrong measurement. They route to an external manual
-(`<vault-root>/path/to/CAD-visualization-documentation-manual.md`) that is not shipped here; if it is unavailable, the agent
-says so instead of claiming it was checked.
+[`manual-rules.md`](references/manual-rules.md) is only read for CAD/STL/URDF docs. Things like `1 µm` URDF checks and a `16 MB`
+HTML budget are project conventions, so they live in their own file and never become defaults for normal writing. A wrong
+measurement is never silently deleted; the doc records what was wrong. The manual those rules point to isn't in this repo, so
+when it's missing the agent says so instead of claiming it checked.
 
 ## Install
 
+This is set up for Codex. Clone it into a folder named `obsidian-design`, same as the skill.
+
 ```bash
-# Codex: clone into a folder named obsidian-design, then copy it
 git clone https://github.com/lsy041015/Obsidian-Design.git obsidian-design
 cp -R obsidian-design "${CODEX_HOME:-$HOME/.codex}/skills/"
+```
 
-# Validate with Codex's skill validator (part of skill-creator, not included here)
+Add `$obsidian-design` to your request to call it. Implicit invocation is on, so Codex may also pick it by itself.
+Telling it the audience, destination or the note to edit means less guessing.
+
+Validate with the checker from Codex's `skill-creator` (not included here, so adjust the path).
+
+```bash
 python /path/to/skill-creator/scripts/quick_validate.py obsidian-design
 ```
 
-Invoke explicitly with `$obsidian-design`.
-
-**Claude Code (same format, so it can load; not verified by the author yet)**: clone into `~/.claude/skills/obsidian-design`
-and call `/obsidian-design`.
+Claude Code uses the same frontmatter format, so it should load as `/obsidian-design` from the path below, but I haven't tried it there yet.
 
 ```bash
 git clone https://github.com/lsy041015/Obsidian-Design.git ~/.claude/skills/obsidian-design
 ```
 
-## Usage
+## Not there yet
 
-Add `$obsidian-design` and say what to write; the Codex UI default prompt is "Use $obsidian-design to draft a clear,
-source-backed Markdown document." Implicit invocation is allowed, so Codex may also pick the skill on its own. Mention the
-audience, destination and template if you have them, and point to the note when editing. You get the file link and any
-material limitation back, not the whole document. Check the result in Obsidian or your target renderer when it matters.
+No version number, tests or example outputs. The behavior is described only by the rules in `SKILL.md`.
+MIT license ([LICENSE](LICENSE)).
 
-## Design notes
-
-- Work scales to the document; nothing forces checklists, empty sections or `N/A` rows into every note.
-- CAD numbers such as `0.05 mm` or `16 MB` stay in their own file, so they never become defaults for general writing.
-- Updates keep existing citations and record corrections instead of erasing them.
-- The skill stays portable: no user names, absolute paths, vault IDs or credentials, and the manual path is a placeholder.
-- Documentation work does not authorize source edits, Git cleanup, publishing or changes to source CAD/URDF.
-
-## Limits
-
-No version, changelog, tests, CI or worked example. The CAD manual and the validator are not in this repository. Claude Code
-use is unverified. Not for application UI design or incidental code comments.
-
-## Credits
-
-MIT license ([LICENSE](LICENSE), "Copyright (c) 2026 lsy"). Product names only identify the target tools and imply no
-affiliation. numpy, Three.js and matplotlib are tools the CAD rules mention; none is bundled here.
-
----
-
-<p align="center"><sub>LSY.KOR · <a href="https://github.com/lsy041015">More projects</a></sub></p>
+<sub>[More projects](https://github.com/lsy041015)</sub>
